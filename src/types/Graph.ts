@@ -178,6 +178,7 @@ export interface GraphNodeData {
   isInaccessible?: boolean;
   isMisconfigured?: string;
   isOutside?: boolean;
+  isRequested?: boolean;
   isRoot?: boolean;
   isServiceEntry?: string;
   isUnused?: boolean;

@@ -57,6 +57,7 @@ export const decorateGraphData = (graphData: GraphElements): DecoratedGraphEleme
       isIstio: undefined,
       isMisconfigured: undefined,
       isOutside: undefined,
+      isRequested: undefined,
       isRoot: undefined,
       isServiceEntry: undefined,
       isUnused: undefined,

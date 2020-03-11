@@ -433,9 +433,12 @@ export class GraphStyles {
         case NodeType.APP:
           return 'round-rectangle';
         case NodeType.SERVICE:
+          if (nodeData.isRequested) {
+            return 'round-diamond';
+          }
           return nodeData.isServiceEntry ? 'round-tag' : 'round-triangle';
         case NodeType.UNKNOWN:
-          return 'round-diamond';
+          return 'round-triangle';
         case NodeType.WORKLOAD:
           return 'ellipse';
         default:
