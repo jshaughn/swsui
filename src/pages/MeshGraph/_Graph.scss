@@ -1,0 +1,61 @@
+:root {
+  --graph-side-panel--font-size: 12px;
+  --graph-side-panel--font-size-px: 12;
+}
+
+#summary-graph-actions .pf-c-dropdown__toggle {
+  font-size: var(--graph-side-panel--font-size);
+}
+#summary-graph-actions .pf-c-dropdown__menu-item {
+  font-size: var(--graph-side-panel--font-size);
+}
+
+#summary-group-actions .pf-c-dropdown__toggle {
+  font-size: var(--graph-side-panel--font-size);
+}
+#summary-group-actions .pf-c-dropdown__menu-item {
+  font-size: var(--graph-side-panel--font-size);
+}
+
+#summary-node-actions .pf-c-dropdown__toggle {
+  font-size: var(--graph-side-panel--font-size);
+}
+#summary-node-actions .pf-c-dropdown__menu-item {
+  font-size: var(--graph-side-panel--font-size);
+}
+
+// Panel graph styles from bootstrap
+
+.panel {
+  margin-bottom: 23px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 1px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.panel-default {
+  border-color: #ddd;
+}
+
+.panel-default > .panel-heading {
+  color: #363636;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+
+.panel-heading {
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+#graph-display-menu .pf-c-radio__input {
+  margin: 0;
+}
+
+#graph-display-menu .pf-c-check__input {
+  margin: 0;
+}
