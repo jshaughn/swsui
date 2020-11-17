@@ -81,20 +81,20 @@ export type GraphDefinition = {
 };
 
 // Node data after decorating at fetch-time (what is mainly used by ui code)
-export interface MeshDecoratedGraphNodeData extends MeshGraphNodeData {}
+export interface DecoratedMeshGraphNodeData extends MeshGraphNodeData {}
 
 // Edge data after decorating at fetch-time (what is mainly used by ui code)
-export interface MeshDecoratedGraphEdgeData extends MeshGraphEdgeData {}
+export interface DecoratedMeshGraphEdgeData extends MeshGraphEdgeData {}
 
-export interface MeshDecoratedGraphNodeWrapper {
-  data: MeshDecoratedGraphNodeData;
+export interface DecoratedMeshGraphNodeWrapper {
+  data: DecoratedMeshGraphNodeData;
 }
 
-export interface MeshDecoratedGraphEdgeWrapper {
-  data: MeshDecoratedGraphEdgeData;
+export interface DecoratedMeshGraphEdgeWrapper {
+  data: DecoratedMeshGraphEdgeData;
 }
 
-export interface MeshDecoratedGraphElements {
-  nodes?: MeshDecoratedGraphNodeWrapper[];
-  edges?: MeshDecoratedGraphEdgeWrapper[];
+export interface DecoratedMeshGraphElements {
+  nodes?: DecoratedMeshGraphNodeWrapper[];
+  edges?: DecoratedMeshGraphEdgeWrapper[];
 }

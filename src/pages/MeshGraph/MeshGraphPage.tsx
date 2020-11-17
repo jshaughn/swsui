@@ -63,7 +63,7 @@ import { NamespaceActions } from '../../actions/NamespaceAction';
 import GraphThunkActions from '../../actions/GraphThunkActions';
 import { JaegerTrace } from 'types/JaegerInfo';
 import { JaegerThunkActions } from 'actions/JaegerThunkActions';
-import { MeshNodeParamsType, MeshSummaryData, MeshDecoratedGraphElements } from 'types/MeshGraph';
+import { MeshNodeParamsType, MeshSummaryData, DecoratedMeshGraphElements } from 'types/MeshGraph';
 
 // MeshGraphURLPathProps holds path variable values.  Currently none
 type MeshGraphURLPathProps = {};
@@ -81,7 +81,7 @@ type ReduxProps = {
 export type MeshGraphPageProps = RouteComponentProps<Partial<MeshGraphURLPathProps>> & ReduxProps;
 
 export type MeshGraphData = {
-  elements: MeshDecoratedGraphElements;
+  elements: DecoratedMeshGraphElements;
   errorMessage?: string;
   fetchParams: FetchParams;
   isLoading: boolean;
@@ -91,6 +91,7 @@ export type MeshGraphData = {
 
 type MeshGraphPageState = {
   graphData: MeshGraphData;
+  showLegend: boolean;
 };
 
 const NUMBER_OF_DATAPOINTS = 30;
@@ -190,49 +191,13 @@ export class MeshGraphPage extends React.Component<MeshGraphPageProps, MeshGraph
     }
   }
 
-  componentDidUpdate(prev: GraphPageProps) {
+  componentDidUpdate(prev: MeshGraphPageProps) {
     // schedule an immediate graph fetch if needed
     const curr = this.props;
-
-    const activeNamespacesChanged = !arrayEquals(
-      prev.activeNamespaces,
-      curr.activeNamespaces,
-      (n1, n2) => n1.name === n2.name
-    );
-
-    // Ensure we initialize the graph when there is a change to activeNamespaces.
-    if (activeNamespacesChanged) {
-      this.props.onNamespaceChange();
-    }
-
-    if (
-      activeNamespacesChanged ||
-      prev.duration !== curr.duration ||
-      (prev.edgeLabelMode !== curr.edgeLabelMode &&
-        curr.edgeLabelMode === EdgeLabelMode.RESPONSE_TIME_95TH_PERCENTILE) ||
-      prev.graphType !== curr.graphType ||
-      (prev.lastRefreshAt !== curr.lastRefreshAt && curr.replayQueryTime === 0) ||
-      prev.replayQueryTime !== curr.replayQueryTime ||
-      prev.showOperationNodes !== curr.showOperationNodes ||
-      prev.showServiceNodes !== curr.showServiceNodes ||
-      prev.showSecurity !== curr.showSecurity ||
-      prev.showUnusedNodes !== curr.showUnusedNodes ||
-      GraphPage.isNodeChanged(prev.node, curr.node)
-    ) {
-      this.loadGraphDataFromBackend();
-    }
 
     if (!!this.focusSelector) {
       this.focusSelector = undefined;
       unsetFocusSelector();
-    }
-
-    if (prev.layout.name !== curr.layout.name || activeNamespacesChanged) {
-      this.errorBoundaryRef.current.cleanError();
-    }
-
-    if (curr.showLegend && this.props.activeTour) {
-      this.props.endTour();
     }
   }
 
@@ -253,7 +218,6 @@ export class MeshGraphPage extends React.Component<MeshGraphPageProps, MeshGraph
       this.state.graphData.elements.nodes && Object.keys(this.state.graphData.elements.nodes).length > 0
     );
     const isReady = !(isEmpty || this.state.graphData.isError);
-    const isReplayReady = this.props.replayActive && !!this.props.replayQueryTime;
     const cy = this.cyGraphRef && this.cyGraphRef.current ? this.cyGraphRef.current.getCy() : null;
     return (
       <>
@@ -261,49 +225,36 @@ export class MeshGraphPage extends React.Component<MeshGraphPageProps, MeshGraph
           <div>
             <GraphToolbarContainer cy={cy} disabled={this.state.graphData.isLoading} onToggleHelp={this.toggleHelp} />
           </div>
-          <FlexView grow={true} className={`${cyGraphWrapperDivStyle} ${this.props.replayActive && replayBorder}`}>
+          <FlexView grow={true} className={cyGraphWrapperDivStyle}>
             <ErrorBoundary
               ref={this.errorBoundaryRef}
               onError={this.notifyError}
               fallBackComponent={<GraphErrorBoundaryFallback />}
             >
-              {this.props.showLegend && (
-                <GraphLegend
-                  className={graphLegendStyle}
-                  isMTLSEnabled={this.props.mtlsEnabled}
-                  closeLegend={this.props.toggleLegend}
-                />
+              {this.state.showLegend && (
+                <GraphLegend className={graphLegendStyle} isMTLSEnabled={false} closeLegend={this.props.toggleLegend} />
               )}
               {isReady && (
-                <Chip
-                  className={`${meshIdStyle} ${this.props.replayActive ? replayBackground : whiteBackground}`}
-                  isOverflowChip={true}
-                  isReadOnly={true}
-                >
-                  {this.props.replayActive && <Badge style={{ marginRight: '4px' }} isRead={true}>{`Replay`}</Badge>}
-                  {!isReplayReady && this.props.replayActive && `click Play to start`}
-                  {!isReplayReady && !this.props.replayActive && `${this.displayTimeRange()}`}
-                  {isReplayReady && `${this.displayTimeRange()}`}
+                <Chip className={`${meshIdStyle} ${whiteBackground}`} isOverflowChip={true} isReadOnly={true}>
+                  Mesh ID Here
                 </Chip>
               )}
-              {(!this.props.replayActive || isReplayReady) && (
-                <TourStopContainer info={GraphTourStops.Graph}>
-                  <TourStopContainer info={GraphTourStops.ContextualMenu}>
-                    <CytoscapeGraph
-                      containerClassName={cyGraphContainerStyle}
-                      contextMenuGroupComponent={NodeContextMenuContainer}
-                      contextMenuNodeComponent={NodeContextMenuContainer}
-                      focusSelector={this.focusSelector}
-                      graphData={this.state.graphData}
-                      isMTLSEnabled={this.props.mtlsEnabled}
-                      onEmptyGraphAction={this.handleEmptyGraphAction}
-                      onNodeDoubleTap={this.handleDoubleTap}
-                      ref={refInstance => this.setCytoscapeGraph(refInstance)}
-                      {...this.props}
-                    />
-                  </TourStopContainer>
+              <TourStopContainer info={GraphTourStops.Graph}>
+                <TourStopContainer info={GraphTourStops.ContextualMenu}>
+                  <CytoscapeGraph
+                    containerClassName={cyGraphContainerStyle}
+                    contextMenuGroupComponent={NodeContextMenuContainer}
+                    contextMenuNodeComponent={NodeContextMenuContainer}
+                    focusSelector={this.focusSelector}
+                    graphData={this.state.graphData}
+                    isMTLSEnabled={false}
+                    onEmptyGraphAction={this.handleEmptyGraphAction}
+                    onNodeDoubleTap={this.handleDoubleTap}
+                    ref={refInstance => this.setCytoscapeGraph(refInstance)}
+                    {...this.props}
+                  />
                 </TourStopContainer>
-              )}
+              </TourStopContainer>
               {isReady && (
                 <div className={cyToolbarWrapperDivStyle}>
                   <CytoscapeToolbarContainer cytoscapeGraphRef={this.cyGraphRef} />
